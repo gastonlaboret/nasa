@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPACE HEALTH 360 | Prototipo</title>
+<style>
+:root{--bg:#07111f;--panel:#101f32;--panel2:#152941;--line:#29415d;--text:#edf5ff;--muted:#a8bbd0;--cyan:#45d7e8;--green:#39d98a;--yellow:#ffc857;--red:#ff647c}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#07111f,#0b1c30 60%,#102a40);color:var(--text);font:15px/1.5 Arial,sans-serif}
+header{padding:22px 4vw 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px}.logo{width:48px;height:48px;border:2px solid var(--cyan);border-radius:50%;display:grid;place-items:center;color:var(--cyan);font-weight:bold;font-size:20px;box-shadow:0 0 20px #45d7e833}
+h1{font-size:clamp(22px,3vw,30px);margin:0;letter-spacing:1px}header p{margin:3px 0 0;color:var(--muted)}
+.badge{border:1px solid var(--line);padding:8px 13px;border-radius:20px;color:var(--cyan);font-size:13px}
+main{max-width:1300px;margin:auto;padding:25px 4vw 50px}.notice{background:#163149;border:1px solid #2a6077;padding:12px 15px;border-radius:12px;color:#cdeefa;margin-bottom:22px}
+.section-title{display:flex;justify-content:space-between;align-items:end;gap:12px;margin:24px 0 12px;flex-wrap:wrap}.section-title h2{font-size:20px;margin:0}.muted{color:var(--muted);font-size:13px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}.stat,.card{background:linear-gradient(145deg,var(--panel),#0d1b2c);border:1px solid var(--line);border-radius:15px;padding:16px}
+.stat small{color:var(--muted)}.stat strong{display:block;font-size:26px;margin-top:5px}.stat span{font-size:12px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:1.15fr .85fr;gap:16px}.crew{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.person{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:15px;cursor:pointer;transition:.2s;text-align:left;color:var(--text);width:100%}.person:hover,.person.selected{border-color:var(--cyan);transform:translateY(-2px);box-shadow:0 8px 24px #0003}
+.person-top{display:flex;justify-content:space-between;align-items:center}.person h3{margin:0;font-size:16px}.person p{margin:7px 0 0;color:var(--muted);font-size:13px}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}.green{background:var(--green)}.yellow{background:var(--yellow)}.red{background:var(--red)}
+.status{font-size:12px;padding:4px 8px;border-radius:20px;background:#ffffff0d}.person .mini{display:flex;gap:14px;margin-top:12px;font-size:12px;color:var(--muted)}
+button,select{font:inherit}button.action{background:var(--cyan);color:#05202a;border:0;padding:10px 14px;border-radius:9px;font-weight:bold;cursor:pointer}button.secondary{background:#20364e;color:var(--text);border:1px solid var(--line);padding:9px 12px;border-radius:9px;cursor:pointer}button:hover{filter:brightness(1.08)}
+.profile-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.profile-head h3{margin:0}.metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px}.metric{background:var(--panel2);padding:12px;border-radius:10px}.metric small{color:var(--muted);display:block}.metric b{font-size:22px}.metric em{font-style:normal;color:var(--muted);font-size:12px}
+.scenarios{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.scenario{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:13px}.scenario h4{margin:0 0 6px}.scenario p{font-size:12px;color:var(--muted);min-height:37px;margin:0 0 12px}
+.alert{border-radius:12px;padding:14px;margin-top:12px;border:1px solid var(--line);background:#0b1929}.alert.yellowbox{border-color:#92743a;background:#302815}.alert.redbox{border-color:#934153;background:#321923}.alert h4{margin:0 0 5px}.alert p{margin:4px 0;color:#d9e5f1}
+.log{max-height:170px;overflow:auto;color:var(--muted);font-size:13px}.log div{padding:7px 0;border-bottom:1px solid #ffffff12}
+footer{color:var(--muted);text-align:center;font-size:12px;padding:20px;border-top:1px solid var(--line)}
+@media(max-width:850px){.stats{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}.scenarios{grid-template-columns:1fr}}
+@media(max-width:520px){.crew{grid-template-columns:1fr}.metrics{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}}
+
+.history-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.chart-card{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:14px;min-width:0}
+.chart-card h3{margin:0 0 8px;font-size:15px}.chart-card p{margin:0 0 8px;color:var(--muted);font-size:12px}
+.chart{width:100%;height:180px;display:block}.chart-labels{display:flex;justify-content:space-between;color:var(--muted);font-size:11px}
+.history-table{width:100%;border-collapse:collapse;margin-top:12px;font-size:12px}
+.history-table th,.history-table td{text-align:left;padding:8px;border-bottom:1px solid #ffffff18}
+.history-table th{color:var(--muted);font-weight:normal}
+.trend-note{margin-top:12px;padding:12px;border-radius:10px;background:#10283b;border:1px solid var(--line);font-size:13px}
+@media(max-width:700px){.history-grid{grid-template-columns:1fr}}
+
+.monitor-box{background:linear-gradient(145deg,#122941,#0c1c2d);border:1px solid #31506e;border-radius:15px;padding:16px;margin:22px 0}
+.monitor-controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:12px}
+.monitor-state{display:inline-flex;align-items:center;gap:8px;padding:7px 11px;border-radius:20px;background:#ffffff0c;border:1px solid var(--line);font-size:12px}
+.monitor-light{width:9px;height:9px;border-radius:50%;background:#8799aa}
+.monitor-light.live{background:var(--green);box-shadow:0 0 12px var(--green)}
+.monitor-reading{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+.reading{background:#0a1929;border:1px solid var(--line);border-radius:10px;padding:10px}
+.reading small{display:block;color:var(--muted);font-size:11px}.reading b{font-size:20px}
+.alarm-banner{display:none;margin-top:12px;padding:12px;border-radius:10px;border:1px solid var(--red);background:#351824;color:#ffe5ea}
+.alarm-banner.show{display:block;animation:pulse 1.2s infinite alternate}
+@keyframes pulse{from{box-shadow:0 0 0 #ff647c00}to{box-shadow:0 0 18px #ff647c66}}
+@media(max-width:700px){.monitor-reading{grid-template-columns:repeat(2,1fr)}}
+
+
+.fleet-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:12px 0 22px}
+.fleet-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;cursor:pointer;transition:.2s}
+.fleet-card:hover,.fleet-card.active{border-color:var(--cyan);transform:translateY(-2px)}
+.fleet-card h3{font-size:15px;margin:0 0 4px}.fleet-role{font-size:11px;color:var(--muted);margin-bottom:12px}
+.fleet-status{display:flex;align-items:center;gap:7px;font-size:12px;margin-bottom:12px}
+.fleet-values{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.fleet-value{background:#091827;border-radius:9px;padding:8px}
+.fleet-value small{display:block;color:var(--muted);font-size:10px}.fleet-value b{font-size:16px}
+.fleet-foot{font-size:11px;color:var(--muted);margin-top:10px}
+@media(max-width:900px){.fleet-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.fleet-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+ <div class="brand"><div class="logo">360</div><div><h1>SPACE HEALTH 360</h1><p>Monitoreo integral y prevención para misiones espaciales</p></div></div>
+ <div class="badge">MISIÓN MARTE · DÍA 180 · SIMULACIÓN</div>
+</header>
+<main>
+ <div class="notice"><b>Prototipo demostrativo:</b> todos los perfiles y valores son ficticios. El sistema identifica variaciones para orientar el seguimiento; no realiza diagnósticos ni reemplaza al equipo médico.</div>
+ <div class="section-title"><h2>Panel general de misión</h2><span class="muted">Estado de la tripulación</span></div>
+
+ <div class="section-title"><h2>Monitoreo de toda la tripulación</h2><span class="muted">Seleccioná una tarjeta para abrir su ficha individual</span></div>
+ <div id="fleetDashboard" class="fleet-grid"></div>
+ <div class="stats">
+  <div class="stat"><small>Tripulantes</small><strong>04</strong><span>Equipo completo</span></div>
+  <div class="stat"><small>En observación</small><strong id="watchCount">02</strong><span>Requieren seguimiento</span></div>
+  <div class="stat"><small>Alertas prioritarias</small><strong id="alertCount">00</strong><span>Según datos simulados</span></div>
+  <div class="stat"><small>Día de misión</small><strong>180</strong><span>Viaje interplanetario</span></div>
+ </div>
+ <div class="section-title"><h2>Tripulación</h2><span class="muted">Seleccioná un perfil para consultar sus datos</span></div>
+ <div class="grid">
+  <section class="card">
+   <div class="crew" id="crewList"></div>
+  </section>
+  <section class="card">
+   <div class="profile-head"><div><div class="muted">FICHA INDIVIDUAL</div><h3 id="profileName">Astronauta 01</h3></div><span class="status" id="profileStatus">● Estado estable</span></div>
+   <div class="muted" id="profileRole">Comandante · 180 días de misión</div>
+   <div class="metrics" id="metrics"></div>
+   <div class="muted" style="margin-top:12px">Los valores de referencia corresponden a la línea de base ficticia de cada tripulante.</div>
+  </section>
+ </div>
+
+ <section class="monitor-box">
+  <div class="profile-head">
+   <div><div class="muted">MONITOREO AUTOMÁTICO · SIMULACIÓN EN TIEMPO REAL</div><h2 style="margin:3px 0">Centro de control de signos vitales</h2></div>
+   <span class="monitor-state"><i id="monitorLight" class="monitor-light"></i><span id="monitorState">Detenido</span></span>
+  </div>
+  <p class="muted">Genera valores ficticios automáticamente para probar la detección de variaciones. No son datos de sensores ni valores médicos reales.</p>
+  <div class="monitor-controls">
+   <button class="action" id="startMonitor" onclick="startMonitor()">▶ Iniciar monitoreo</button>
+   <button class="secondary" id="stopMonitor" onclick="stopMonitor()" disabled>■ Detener</button>
+   <button class="secondary" id="soundButton" onclick="enableSound()">🔊 Activar sonido</button>
+   <button class="secondary" onclick="clearAlarm()">Silenciar alarma actual</button>
+   <label class="muted">Intervalo:
+    <select id="monitorInterval" style="background:#0a1929;color:var(--text);border:1px solid var(--line);padding:8px;border-radius:8px">
+     <option value="2500">2,5 segundos</option><option value="4000" selected>4 segundos</option><option value="6000">6 segundos</option>
+    </select>
+   </label>
+  </div>
+  <div class="monitor-reading">
+   <div class="reading"><small>Frecuencia cardíaca</small><b id="liveHr">--</b> <small>lpm</small></div>
+   <div class="reading"><small>Presión arterial</small><b id="liveBp">--</b> <small>mmHg</small></div>
+   <div class="reading"><small>Saturación O₂</small><b id="liveSpo2">--</b> <small>%</small></div>
+   <div class="reading"><small>Tripulante monitoreado</small><b id="liveCrew" style="font-size:15px">--</b></div>
+  </div>
+  <div id="alarmBanner" class="alarm-banner" role="alert" aria-live="assertive"></div>
+  <div class="muted" style="margin-top:10px">Las alarmas de esta demostración se activan mediante umbrales ilustrativos configurados para probar el prototipo. No constituyen límites clínicos ni estándares oficiales de NASA.</div>
+ </section>
+
+ <div class="section-title"><h2>Simulador de situaciones</h2><span class="muted">Aplicá un escenario al astronauta seleccionado</span></div>
+ <div class="scenarios">
+  <div class="scenario"><h4>01 · Alteración del sueño</h4><p>Disminución sostenida de horas de descanso y cambios en el ánimo.</p><button class="action" onclick="runScenario('sleep')">Simular situación</button></div>
+  <div class="scenario"><h4>02 · Cambios cardiovasculares</h4><p>Aumento de frecuencia cardíaca y presión respecto de su línea de base.</p><button class="action" onclick="runScenario('cardio')">Simular situación</button></div>
+  <div class="scenario"><h4>03 · Alerta prioritaria</h4><p>Variaciones importantes acompañadas de síntomas declarados.</p><button class="action" onclick="runScenario('urgent')">Simular situación</button></div>
+ </div>
+ <div class="section-title"><h2>Análisis y respuesta del sistema</h2><button class="secondary" onclick="resetSelected()">Restablecer perfil seleccionado</button></div>
+ <div class="grid">
+  <section class="card">
+   <div class="muted">RESULTADO DEL ANÁLISIS</div>
+   <div id="analysis"><p>Seleccioná un astronauta y activá una simulación para observar cómo responde el sistema.</p></div>
+  </section>
+  <section class="card">
+   <div class="muted">REGISTRO DE EVENTOS</div>
+   <div class="log" id="log"><div>Sistema iniciado. Perfiles de simulación cargados.</div></div>
+   <button class="secondary" style="margin-top:10px" onclick="addFollowup()">Registrar control de seguimiento</button>
+  </section>
+ </div>
+</main>
+<footer>SPACE HEALTH 360 · Prototipo educativo · Datos simulados · No utilizar para decisiones médicas reales</footer>
+<script>
+const baseline = {
+ a1:{name:"Astronauta 01",role:"Comandante",hr:68,bp:"120/80",spo2:98,sleep:8,mood:"Estable"},
+ a2:{name:"Astronauta 02",role:"Especialista de misión",hr:72,bp:"118/78",spo2:98,sleep:8,mood:"Estable"},
+ a3:{name:"Astronauta 03",role:"Ingeniero de vuelo",hr:68,bp:"120/80",spo2:98,sleep:8,mood:"Estable"},
+ a4:{name:"Astronauta 04",role:"Especialista científico",hr:70,bp:"122/80",spo2:97,sleep:7.5,mood:"Estable"}
+};
+let crew = JSON.parse(JSON.stringify(baseline));
+let selected="a1", scenarioState={};
+const $=id=>document.getElementById(id);
+
+const historyData={
+a1:[{day:174,hr:67,sleep:8,note:"Estable"},{day:175,hr:68,sleep:8,note:"Estable"},{day:176,hr:69,sleep:7.8,note:"Estable"},{day:177,hr:68,sleep:8,note:"Estable"},{day:178,hr:67,sleep:8.1,note:"Estable"},{day:179,hr:68,sleep:8,note:"Estable"},{day:180,hr:68,sleep:8,note:"Actual"}],
+a2:[{day:174,hr:71,sleep:8,note:"Estable"},{day:175,hr:72,sleep:7.8,note:"Estable"},{day:176,hr:72,sleep:7.5,note:"Seguimiento"},{day:177,hr:73,sleep:7.2,note:"Seguimiento"},{day:178,hr:72,sleep:7,note:"Seguimiento"},{day:179,hr:72,sleep:7.5,note:"Seguimiento"},{day:180,hr:72,sleep:8,note:"Actual"}],
+a3:[{day:174,hr:67,sleep:8,note:"Estable"},{day:175,hr:68,sleep:8,note:"Estable"},{day:176,hr:68,sleep:8,note:"Estable"},{day:177,hr:69,sleep:7.8,note:"Estable"},{day:178,hr:68,sleep:8,note:"Estable"},{day:179,hr:67,sleep:8,note:"Estable"},{day:180,hr:68,sleep:8,note:"Actual"}],
+a4:[{day:174,hr:70,sleep:7.5,note:"Estable"},{day:175,hr:71,sleep:7.5,note:"Estable"},{day:176,hr:70,sleep:7.6,note:"Estable"},{day:177,hr:70,sleep:7.5,note:"Estable"},{day:178,hr:69,sleep:7.5,note:"Estable"},{day:179,hr:70,sleep:7.5,note:"Estable"},{day:180,hr:70,sleep:7.5,note:"Actual"}]
+};
+function chart(id,vals,unit){
+ const w=520,h=180,p=28,lo=Math.min(...vals)-2,hi=Math.max(...vals)+2,span=Math.max(1,hi-lo);
+ const pts=vals.map((v,i)=>`${p+i*(w-2*p)/(vals.length-1)},${h-p-(v-lo)/span*(h-2*p)}`).join(" ");
+ const dots=vals.map((v,i)=>{let x=p+i*(w-2*p)/(vals.length-1),y=h-p-(v-lo)/span*(h-2*p);return `<circle cx="${x}" cy="${y}" r="4" fill="#45d7e8"><title>${v} ${unit}</title></circle>`}).join("");
+ return `<svg class="chart" viewBox="0 0 ${w} ${h}"><line x1="${p}" y1="${p}" x2="${w-p}" y2="${p}" stroke="#29415d"/><line x1="${p}" y1="${h-p}" x2="${w-p}" y2="${h-p}" stroke="#29415d"/><polyline points="${pts}" fill="none" stroke="#45d7e8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>${dots}</svg><div class="chart-labels"><span>Registro 1</span><span>Registro 7</span></div>`;
+}
+function renderHistory(){
+ const rows=historyData[selected],p=crew[selected];
+ $("historyTitle").textContent="EVOLUCIÓN · "+p.name.toUpperCase();
+ $("hrChart").innerHTML=chart("hrChart",rows.map(x=>x.hr),"lpm");
+ $("sleepChart").innerHTML=chart("sleepChart",rows.map(x=>x.sleep),"h");
+ $("historyRows").innerHTML=rows.slice().reverse().map(x=>`<tr><td>${x.day}</td><td>${x.hr} lpm</td><td>${x.sleep} h</td><td>${x.note}</td></tr>`).join("");
+ const change=rows[rows.length-1].sleep-rows[0].sleep;
+ const msg=change < -1 ? `Las horas de sueño disminuyeron ${Math.abs(change).toFixed(1)} h entre el primer y último registro.` : change > 1 ? `Las horas de sueño aumentaron ${change.toFixed(1)} h entre el primer y último registro.` : "No se observa una variación marcada de sueño entre el primer y último registro.";
+ $("trendNote").innerHTML="<b>Lectura de tendencia:</b> "+msg+"<br><small>Lectura demostrativa; no constituye diagnóstico ni umbral clínico.</small>";
+}
+function addHistoryPoint(id,note){
+ const rows=historyData[id],p=crew[id],day=rows[rows.length-1].day+1;
+ rows.push({day,hr:p.hr,sleep:p.sleep,note});if(rows.length>7)rows.shift();
+}
+
+
+let monitorTimer=null, audioContext=null, soundEnabled=false, alarmActive=false, lastAlarmAt=0;
+function enableSound(){
+ try{
+  const AC=window.AudioContext||window.webkitAudioContext;
+  if(!AC){alert("Este navegador no permite generar sonido.");return;}
+  if(!audioContext)audioContext=new AC();
+  if(audioContext.state==="suspended")audioContext.resume();
+  soundEnabled=true;
+  $("soundButton").textContent="🔊 Sonido activado";
+  $("soundButton").style.borderColor="var(--green)";
+  log("Sonido de alarmas habilitado por el usuario.");
+ }catch(e){alert("No se pudo activar el sonido en este navegador.");}
+}
+function beep(){
+ if(!soundEnabled||!audioContext)return;
+ if(audioContext.state==="suspended")audioContext.resume();
+ const now=audioContext.currentTime;
+ [0,0.24,0.48].forEach((offset,i)=>{
+  const osc=audioContext.createOscillator(),gain=audioContext.createGain();
+  osc.type="sine";osc.frequency.value=i===1?880:660;
+  gain.gain.setValueAtTime(0.0001,now+offset);
+  gain.gain.exponentialRampToValueAtTime(0.16,now+offset+0.02);
+  gain.gain.exponentialRampToValueAtTime(0.0001,now+offset+0.17);
+  osc.connect(gain);gain.connect(audioContext.destination);
+  osc.start(now+offset);osc.stop(now+offset+0.19);
+ });
+}
+function parseBP(bp){const parts=bp.split("/").map(Number);return {sys:parts[0]||120,dia:parts[1]||80};}
+function evaluateLive(id){
+ const p=crew[id],bp=parseBP(p.bp);
+ if(p.hr>=115||p.spo2<=92||bp.sys>=155||bp.dia>=100)return {level:"red",message:`ALERTA PRIORITARIA · ${p.name}: revisar FC ${p.hr} lpm, PA ${p.bp}, SpO₂ ${p.spo2}%. Seguir el protocolo médico de la misión.`};
+ if(p.hr>=100||p.spo2<=95||bp.sys>=140||bp.dia>=90)return {level:"yellow",message:`ATENCIÓN · ${p.name}: se detectó una variación en uno o más indicadores. Verificar la medición y continuar el seguimiento.`};
+ return {level:"green",message:"Sin alertas en esta lectura simulada."};
+}
+
+function renderFleetDashboard(){
+ const box=$("fleetDashboard");
+ if(!box)return;
+ box.innerHTML=Object.keys(crew).map(id=>{
+  const p=crew[id],ev=evaluateLive(id);
+  const label=ev.level==="red"?"PRIORITARIO":ev.level==="yellow"?"ATENCIÓN":"ESTABLE";
+  const color=ev.level==="red"?"red":ev.level==="yellow"?"yellow":"green";
+  return `<article class="fleet-card ${selected===id?'active':''}" onclick="selectPerson('${id}')">
+   <h3>${p.name}</h3><div class="fleet-role">${p.role}</div>
+   <div class="fleet-status"><i class="dot ${color}"></i>${label}</div>
+   <div class="fleet-values">
+    <div class="fleet-value"><small>♥ Frecuencia cardíaca</small><b>${p.hr}</b> <small>lpm</small></div>
+    <div class="fleet-value"><small>◉ Saturación O₂</small><b>${p.spo2}</b> <small>%</small></div>
+    <div class="fleet-value"><small>▤ Presión arterial</small><b>${p.bp}</b> <small>mmHg</small></div>
+    <div class="fleet-value"><small>☾ Sueño</small><b>${p.sleep}</b> <small>horas</small></div>
+   </div><div class="fleet-foot">Seleccionar para ver seguimiento individual →</div>
+  </article>`;
+ }).join("");
+}
+
+function updateLivePanel(id){
+ const p=crew[id],ev=evaluateLive(id);
+ $("liveHr").textContent=p.hr;$("liveBp").textContent=p.bp;$("liveSpo2").textContent=p.spo2;$("liveCrew").textContent=p.name.replace("Astronauta ","Ast. ");
+ const banner=$("alarmBanner");
+ if(ev.level==="green"){banner.classList.remove("show");banner.textContent="";alarmActive=false;}
+ else{
+  banner.classList.add("show");banner.textContent=ev.message;
+  if(!alarmActive||Date.now()-lastAlarmAt>5000){beep();lastAlarmAt=Date.now();}
+  alarmActive=true;
+ }
+}
+function randomTick(){
+ const ids=Object.keys(crew);
+ // En cada ciclo se elige un integrante para simular una nueva lectura.
+ const id=ids[Math.floor(Math.random()*ids.length)],p=crew[id],b=baseline[id];
+ // Pequeña variación aleatoria alrededor de la línea de base.
+ p.hr=Math.max(55,Math.min(125,b.hr+Math.round((Math.random()-.5)*14)));
+ p.spo2=Math.max(88,Math.min(100,b.spo2+Math.round((Math.random()-.5)*4)));
+ let base=parseBP(b.bp),sys=base.sys+Math.round((Math.random()-.5)*14),dia=base.dia+Math.round((Math.random()-.5)*10);
+ // Ocasionalmente se introduce una anomalía ficticia para probar las alarmas.
+ if(Math.random()<0.13){
+  const anomaly=Math.floor(Math.random()*3);
+  if(anomaly===0)p.hr=116+Math.floor(Math.random()*9);
+  if(anomaly===1)p.spo2=89+Math.floor(Math.random()*4);
+  if(anomaly===2){sys=156+Math.floor(Math.random()*9);dia=96+Math.floor(Math.random()*6);}
+ }
+ p.bp=`${sys}/${dia}`;
+ selected=id;
+ render();
+ updateLivePanel(id);
+ renderFleetDashboard();
+ addHistoryPoint(id,"Lectura aleatoria");
+ renderHistory();
+ const ev=evaluateLive(id);
+ if(ev.level!=="green")log(ev.message);
+}
+function startMonitor(){
+ if(monitorTimer)return;
+ $("monitorLight").classList.add("live");$("monitorState").textContent="Monitoreo activo";
+ $("startMonitor").disabled=true;$("stopMonitor").disabled=false;
+ randomTick();
+ monitorTimer=setInterval(randomTick,Number($("monitorInterval").value));
+ log("Monitoreo automático iniciado. Valores aleatorios de demostración.");
+}
+function stopMonitor(){
+ if(monitorTimer){clearInterval(monitorTimer);monitorTimer=null;}
+ $("monitorLight").classList.remove("live");$("monitorState").textContent="Detenido";
+ $("startMonitor").disabled=false;$("stopMonitor").disabled=true;
+ log("Monitoreo automático detenido.");
+}
+function clearAlarm(){
+ $("alarmBanner").classList.remove("show");$("alarmBanner").textContent="";
+ alarmActive=false;
+ log("Alarma visual actual silenciada. El monitoreo continúa.");
+}
+
+function statusFor(id){
+ const s=scenarioState[id]; if(s==="urgent")return ["Alerta prioritaria","red"];
+ if(s==="cardio")return ["Atención cardiovascular","yellow"];
+ if(s==="sleep")return ["Atención: descanso","yellow"];
+ if(id==="a2")return ["Atención: descanso","yellow"];
+ return ["Estado estable","green"];
+}
+function render(){
+ $("crewList").innerHTML=Object.keys(crew).map(id=>{
+  const p=crew[id],st=statusFor(id);
+  return `<button class="person ${id===selected?'selected':''}" onclick="selectPerson('${id}')"><div class="person-top"><h3>${p.name}</h3><span class="status"><i class="dot ${st[1]}"></i>${st[0]}</span></div><p>${p.role}</p><div class="mini"><span>♥ ${p.hr} lpm</span><span>☾ ${p.sleep} h sueño</span></div></button>`;
+ }).join("");
+ const p=crew[selected],st=statusFor(selected);
+ $("profileName").textContent=p.name;$("profileRole").textContent=p.role+" · 180 días de misión";
+ $("profileStatus").innerHTML=`<i class="dot ${st[1]}"></i>${st[0]}`;
+ $("metrics").innerHTML=[
+  ["Frecuencia cardíaca",p.hr+" lpm","Base: "+baseline[selected].hr+" lpm"],
+  ["Presión arterial",p.bp,"Base: "+baseline[selected].bp],
+  ["Saturación O₂",p.spo2+" %","Base: "+baseline[selected].spo2+" %"],
+  ["Sueño diario",p.sleep+" h","Base: "+baseline[selected].sleep+" h"],
+  ["Estado de ánimo",p.mood,"Autoregistro"],
+  ["Actividad física","Registrada","Seguimiento diario"]
+ ].map(x=>`<div class="metric"><small>${x[0]}</small><b>${x[1]}</b><em>${x[2]}</em></div>`).join("");
+ const watch=Object.keys(crew).filter(id=>statusFor(id)[1]!=="green").length;
+ const urgent=Object.keys(crew).filter(id=>statusFor(id)[1]==="red").length;
+ $("watchCount").textContent=watch;$("alertCount").textContent=urgent;
+ renderFleetDashboard();
+}
+function selectPerson(id){selected=id;render();$("analysis").innerHTML="<p>Perfil seleccionado. Elegí un escenario para analizar cambios en sus indicadores.</p>";}
+function log(msg){const d=document.createElement("div");d.textContent=new Date().toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit"})+" · "+msg;$("log").prepend(d);}
+function runScenario(type){
+ const p=crew[selected],b=baseline[selected];scenarioState[selected]=type;
+ if(type==="sleep"){p.sleep=4.5;p.mood="Bajo / cansancio";}
+ if(type==="cardio"){p.hr=94;p.bp="145/92";p.sleep=5;}
+ if(type==="urgent"){p.hr=122;p.bp="160/100";p.spo2=91;p.mood="Malestar declarado";}
+ render();
+ const content={
+ sleep:{title:"ATENCIÓN · CAMBIOS EN EL DESCANSO",cls:"yellowbox",text:"Se observa una reducción de las horas de sueño respecto de la línea de base y un cambio en el estado de ánimo.",actions:["Revisar el registro de sueño y las condiciones de descanso.","Consultar al tripulante por síntomas y bienestar general.","Notificar al responsable de salud si la situación persiste."]},
+ cardio:{title:"ALERTA · VARIACIONES CARDIOVASCULARES",cls:"yellowbox",text:"La frecuencia cardíaca y la presión arterial aumentaron respecto de los valores habituales del tripulante. Se requiere evaluación y verificación.",actions:["Repetir las mediciones siguiendo el procedimiento establecido.","Registrar síntomas, actividad reciente y contexto.","Informar al responsable médico y seguir el protocolo de la misión."]},
+ urgent:{title:"ALERTA PRIORITARIA · EVALUACIÓN INMEDIATA",cls:"redbox",text:"La simulación combina variaciones importantes de varios indicadores con malestar declarado. No es un diagnóstico: requiere activar el protocolo médico de la misión.",actions:["Avisar inmediatamente al responsable médico de la misión.","Seguir el protocolo de emergencia establecido por el equipo médico.","Mantener el seguimiento y registrar las acciones realizadas."]}
+ }[type];
+ $("analysis").innerHTML=`<div class="alert ${content.cls}"><h4>${content.title}</h4><p>${content.text}</p><b>Acciones sugeridas por el prototipo:</b><ol>${content.actions.map(a=>"<li>"+a+"</li>").join("")}</ol><small>La clasificación es demostrativa y utiliza reglas simples; los umbrales reales deben ser definidos y validados por profesionales.</small></div>`;
+ log(p.name+": "+content.title.toLowerCase());
+}
+function addFollowup(){
+ const p=crew[selected],b=baseline[selected];
+ if(!scenarioState[selected]){$("analysis").innerHTML="<p>Primero activá una simulación para registrar un seguimiento.</p>";return;}
+ if(scenarioState[selected]==="sleep"){p.sleep=7;p.mood="En observación";}
+ if(scenarioState[selected]==="cardio"){p.hr=76;p.bp="128/84";}
+ if(scenarioState[selected]==="urgent"){p.hr=88;p.bp="132/86";p.spo2=96;p.mood="En evaluación";}
+ render();
+ $("analysis").innerHTML=`<div class="alert"><h4>SEGUIMIENTO REGISTRADO</h4><p>Se incorporó una nueva medición simulada para ${p.name}. Algunos indicadores muestran una evolución favorable, pero el sistema mantiene el caso bajo observación y no reemplaza la evaluación médica.</p></div>`;
+ log("Control de seguimiento registrado para "+p.name+".");
+}
+function resetSelected(){crew[selected]=JSON.parse(JSON.stringify(baseline[selected]));delete scenarioState[selected];render();$("analysis").innerHTML="<p>Perfil restablecido a sus valores de línea de base. Podés ejecutar otra simulación.</p>";log("Perfil restablecido: "+crew[selected].name+".");}
+render();
+</script>
+</body>
+</html>
